@@ -3,9 +3,8 @@ version: '3'
 services: 
   pfa-desafio2-app:
     build: ./app
+    container_name: pfa-desafio2-app
     entrypoint: dockerize -wait tcp://pfa-desafio2-db:3306 -timeout 20s docker-entrypoint.sh node index.js
-    volumes: 
-      - ./app:/home/node/app    
     depends_on:
       - pfa-desafio2-db
     networks: 
@@ -29,6 +28,7 @@ services:
       - pfa-desafio2-app
     build: 
         ./nginx
+    container_name: pfa-desafio2-server
     ports: 
       - 8080:80
     restart: always
