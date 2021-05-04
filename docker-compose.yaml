@@ -1,0 +1,42 @@
+version: '3'
+
+services: 
+  pfa-desafio2-app:
+    build: ./app
+    entrypoint: dockerize -wait tcp://pfa-desafio2-db:3306 -timeout 20s docker-entrypoint.sh node index.js
+    volumes: 
+      - ./app:/home/node/app    
+    depends_on:
+      - pfa-desafio2-db
+    networks: 
+      - pfa-app-network        
+      - pfa-db-network
+  pfa-desafio2-db:
+    image: mysql:5.7
+    container_name: pfa-desafio2-db
+    command: --innodb-use-native-aio=0
+    restart: always
+    volumes: 
+      - ./db/db.sql:/docker-entrypoint-initdb.d/db.sql
+      - ./db/dbdata:/var/lib/mysql
+    environment: 
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root  
+    networks: 
+      - pfa-db-network  
+  pfa-desafio2-nginx:
+    depends_on: 
+      - pfa-desafio2-app
+    build: 
+        ./nginx
+    ports: 
+      - 8080:80
+    restart: always
+    networks: 
+      - pfa-app-network          
+
+networks: 
+  pfa-app-network:
+    driver: bridge
+  pfa-db-network:
+    driver: bridge    
